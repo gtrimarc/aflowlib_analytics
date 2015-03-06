@@ -29,7 +29,22 @@ BRAVAIS = ['CUB']
 #print( entry )
 #
 
+spec_Alk = ['Li','Na','K','Rb','Cs']
+spec_Noble = ['Cu','Ag','Au']
+spec_Ch = ['S','Se','Te']
 
+spec_A = spec_Alk+spec_Noble
+spec_B = spec_A
+spec_X = spec_Ch
+
+compound=[]
+for sA in spec_A:
+    for sB in spec_B:
+        if sA != sB:
+            for sX in spec_X:
+                lst = [sA,sB,sX]
+                lst.sort()
+                compound.append(lst)
 
 
 
@@ -54,18 +69,9 @@ for l1 in BRAVAIS:
                 #print(c.split())
                 #c = re.rstrip('\n',c)
                 lst = re.split('\d*',c)
+                lst = lst[:len(lst)-1]
                 
                 print(e,aflowlib_entries[e],c,icsd,lst)
-                for i in range(len(lst)):
-                    st = lst[i]
-                    st = re.sub('_sv','',st)
-                    st = re.sub('_pv','',st)
-                    #
-                    # determine how to detect underscore and remove
-                    # is together with what is after it
-                    #
-                    lst[i] = st
-                #print(e)
 
                 # check if there is a method that allows to match the
                 # elements of two lists
@@ -80,20 +86,7 @@ print(entry)
 print(entry['enthalpy_cell'])
 
 
-spec_Alk = ['Li','Na','K','Rb','Cs']
-spec_Noble = ['Cu','Ag','Au']
-spec_Ch = ['S','Se','Te']
 
-spec_A = spec_Alk+spec_Noble
-spec_B = spec_A
-spec_X = spec_Ch
 
-compound=[]
-for sA in spec_A:
-    for sB in spec_B:
-        if sA != sB:
-            for sX in spec_X:
-                lst = [sA,sB,sX]
-                lst.sort()
-                compound.append(lst)
-                print(compound)
+
+
