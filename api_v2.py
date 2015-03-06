@@ -1,6 +1,8 @@
 ﻿#!/usr/bin/python3 # python3
 import json # preamble
 import re
+
+from collections import defaultdict
 from urllib.request import urlopen # preamble
 SERVER='http://aflowlib.duke.edu' # server name
 #
@@ -13,7 +15,7 @@ PROJECT='AFLOWDATA/ICSD_WEB/' # project name
 #           'ORC','ORCF','ORCI','ORCC','HEX',\
 #           'RHL','MCL','MCLC','TRI']
 
-BRAVAIS = ['CUB']
+BRAVAIS = ['ORC','ORCF','ORCI','ORCC']
 
 #PROJECT='AFLOWDATA/ICSD_WEB/'
 #
@@ -46,7 +48,7 @@ for sA in spec_A:
                 lst.sort()
                 compound.append(lst)
 
-
+list_entries = defaultdict(list)
 
 total_num = 0
 for l1 in BRAVAIS:
@@ -61,15 +63,17 @@ for l1 in BRAVAIS:
             #print(len(entry[key]))
             aflowlib_entries=entry[key]
             #print(aflowlib_entries)
-            compound = []
             for e in aflowlib_entries:
                 lst = re.split("_",aflowlib_entries[e])
                 c = lst[0].strip('\n')
                 icsd = lst[2]
                 #print(c.split())
                 #c = re.rstrip('\n',c)
-                lst = re.split('\d*',c)
+                lst = re.split('\d*\.?\d*',c)
                 lst = lst[:len(lst)-1]
+                lst.sort()
+                t=tuple(lst)
+                list_entries[t].append(URL+aflowlib_entries[e])
                 
                 print(e,aflowlib_entries[e],c,icsd,lst)
 
@@ -81,12 +85,16 @@ for l1 in BRAVAIS:
                 #    compound = compound.append(URL+'/'+e)
 
 #for c in compound:
-entry=json.loads(urlopen(URL+'/'+'As1Ni1S1_ICSD_93899/'+'?format=json').readall().decode('utf-8'))
-print(entry)
-print(entry['enthalpy_cell'])
 
+#print(list_entries)
 
+for t in compound:
+    print(t, list_entries[tuple(t)])
+    lst = list_entries[tuple(t)]
+    for c in lst:
+        entry=json.loads(urlopen(c+'/'+'?format=json').readall().decode('utf-8'))
+        print(c,entry['enthalpy_cell'])
 
-
-
-
+#entry=json.loads(urlopen(URL+'/'+'As1Ni1S1_ICSD_93899/'+'?format=json').readall().decode('utf-8'))
+#print(entry)
+#print(entry['enthalpy_cell'])
