@@ -29,22 +29,22 @@ PROJECT='AFLOWDATA/LIB2_RAW/' # project name
 #print( entry )
 #
 
-spec_Alk = ['Li','Na','K','Rb','Cs']
-spec_Noble = ['Cu','Ag','Au']
+spec_Alk = ['Li_sv','Na_sv','K_sv','Rb_sv','Cs_sv']
+spec_Noble = ['Cu_pv','Ag','Au']
 spec_Ch = ['S','Se','Te']
 
-spec_A = spec_Alk+spec_Noble
-spec_B = spec_A
-spec_X = spec_Ch
+species = spec_Alk+spec_Noble+spec_Ch
 
 compound=[]
-for sA in spec_A:
-    for sB in spec_B:
+ns = len(species)
+for ia in range(ns):
+    for ib in range(ia+1,ns):
+        sA = species[ia]
+        sB = species[ib]
         if sA != sB:
-            for sX in spec_X:
-                lst = [sA,sB,sX]
-                lst.sort()
-                compound.append(lst)
+            lst = [sA,sB]
+            lst.sort()
+            compound.append(lst)
 
 list_entries = defaultdict(list)
 
@@ -64,14 +64,14 @@ for key in entry:
             lst.sort()
             
             t=tuple(lst)
-            #list_entries[t].append(URL+aflowlib_entries[e])
+            list_entries[t].append(URL+c)
             
             print(c,lst)
 
-#for t in compound:
-#    print(t, list_entries[tuple(t)])
-#    lst = list_entries[tuple(t)]
-#    for c in lst:
-#        entry=json.loads(urlopen(c+'/'+'?format=json').readall().decode('utf-8'))
-#        print(c,entry['enthalpy_cell'])
+for t in compound:
+    print(t, list_entries[tuple(t)])
+    lst = list_entries[tuple(t)]
+    for c in lst:
+        entry=json.loads(urlopen(c+'/'+'?format=json').readall().decode('utf-8'))
+        print(entry)
 
