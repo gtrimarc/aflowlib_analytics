@@ -73,5 +73,11 @@ for t in compound:
     lst = list_entries[tuple(t)]
     for c in lst:
         entry=json.loads(urlopen(c+'/'+'?format=json').readall().decode('utf-8'))
+        print(entry['aflowlib_entries_number'])
         print(entry)
+        aflowlib_entries_number=entry['aflowlib_entries_number']
+        for ce in entry['aflowlib_entries']:
+            s=json.loads(urlopen(c+'/'+str(entry['aflowlib_entries'][ce])+'/'+'?format=json').readall().decode('utf-8'))
+            print(ce,s['stoichiometry'],s['energy_cell'],s['energy_atom'])
+
 
