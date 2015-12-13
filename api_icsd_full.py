@@ -1,0 +1,73 @@
+﻿#!/u r/bin/python3 # python3
+import json # preamble
+import multiprocessing
+import re
+
+from collections import defaultdict
+from urllib.request import urlopen # preamble
+SERVER='http://aflowlib.duke.edu' # server name
+#
+PROJECT='AFLOWDATA/ICSD_WEB/' # project name
+
+#
+#PROJECT='AFLOWDATA/LIB2_RAW/' # project name
+
+BRAVAIS = ['CUB','FCC','BCC','TET','BCT',\
+           'ORC','ORCF','ORCI','ORCC','HEX',\
+           'RHL','MCL','MCLC','TRI']
+
+
+#PROJECT='AFLOWDATA/ICSD_WEB/'
+#
+#URL=SERVER+'/'+PROJECT # project-layer
+#URL=SERVER+'/'+PROJECT+'AlCu_pvMn_pv/' # set-layer
+#
+#URL=SERVER+'/'+PROJECT+'Cu_pvS/'
+#URL=SERVER+'/'+PROJECT
+#
+#URL='http://aflowlib.duke.edu/AFLOWDATA/ICSD_WEB/BCT/Ag3Cu1S2_ICSD_163983/'
+#
+#entry=json.loads(urlopen(URL+'?format=json').readall().decode('utf-8')) # load
+#print( entry )
+#
+
+def execute_job(aflow_entry):
+    t=json.loads(urlopen(aflow_entry).readall().decode('utf-8')) 
+    return t
+
+if __name__ == '__main__':
+
+    NPROCESS =16
+    pool = multiprocessing.Pool(processes=NPROCESS)
+    
+    ibravais = 0
+    
+    URL=SERVER+'/'+PROJECT+'/'+BRAVAIS[ibravais]
+    entry=json.loads(urlopen(URL+'?aflowlib_entries&format=json').readall().decode('utf-8')) # load
+
+
+    for key in entry:
+        if key == 'aflowlib_entries':
+            aflowlib_entries=entry[key]
+            #print(aflowlib_entries)
+        #print(aflowlib_entries)
+    buffer = []
+    buffer_job = []
+    for c in aflowlib_entries:
+        urlentry=URL+'/'+\
+                         str(aflowlib_entries[c])+'/'+\
+                         '?format=json'
+        buffer_job.append(urlentry)
+        print(c,aflowlib_entries[c])
+        if len(buffer_job)==NPROCESS:
+            print('start query')
+            buffer = pool.map(execute_job,buffer_job)
+#            pool.close()
+#            pool.join() # this makes the script wait here until all jobs are done
+            print('end query')
+            for b in buffer:
+                print(b['prototype'])
+                with open(b['prototype']+'.json', 'w') as f:
+                    f.write(json.dumps(b, indent=2)) 
+            buffer = []
+            buffer_job = []
