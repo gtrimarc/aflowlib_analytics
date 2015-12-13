@@ -2,6 +2,7 @@
 import json # preamble
 import multiprocessing
 import re
+import os
 
 from collections import defaultdict
 from urllib.request import urlopen # preamble
@@ -32,15 +33,24 @@ BRAVAIS = ['CUB','FCC','BCC','TET','BCT',\
 #
 
 def execute_job(aflow_entry):
-    t=json.loads(urlopen(aflow_entry).readall().decode('utf-8')) 
-    return t
+    try:
+        t=json.loads(urlopen(aflow_entry).readall().decode('utf-8')) 
+        status = 'Valid'
+    except ValueError:
+        t=None
+        status = ValueError
+    return (aflow_entry,t,status)
 
 if __name__ == '__main__':
 
-    NPROCESS =16
+    NPROCESS =32
     pool = multiprocessing.Pool(processes=NPROCESS)
     
-    ibravais = 0
+    ibravais = 4
+    print('Bravais system : ',ibravais,BRAVAIS[ibravais])
+
+    os.mkdir(BRAVAIS[ibravais])
+    os.chdir(BRAVAIS[ibravais])
     
     URL=SERVER+'/'+PROJECT+'/'+BRAVAIS[ibravais]
     entry=json.loads(urlopen(URL+'?aflowlib_entries&format=json').readall().decode('utf-8')) # load
@@ -55,19 +65,39 @@ if __name__ == '__main__':
     buffer_job = []
     for c in aflowlib_entries:
         urlentry=URL+'/'+\
-                         str(aflowlib_entries[c])+'/'+\
-                         '?format=json'
+            str(aflowlib_entries[c])+'/'+\
+            '?format=json'
         buffer_job.append(urlentry)
-        print(c,aflowlib_entries[c])
+        print(c,aflowlib_entries[c],urlentry)
         if len(buffer_job)==NPROCESS:
             print('start query')
             buffer = pool.map(execute_job,buffer_job)
 #            pool.close()
 #            pool.join() # this makes the script wait here until all jobs are done
             print('end query')
-            for b in buffer:
-                print(b['prototype'])
-                with open(b['prototype']+'.json', 'w') as f:
-                    f.write(json.dumps(b, indent=2)) 
+            for (aflow_entry,b,status) in buffer:
+                if status == 'Valid': 
+                   if 'prototype' in b:
+                       print(aflow_entry,b['prototype'])
+                       with open(b['prototype']+'.json', 'w') as f:
+                           f.write(json.dumps(b, indent=2))
+                   else:
+                       print(aflow_entry,' Problem: empty record ')
+                else:
+                   print(aflow_entry,' Problem ')
             buffer = []
             buffer_job = []
+
+    if len(buffer_job)!=0:
+        print('start query')
+        buffer = pool.map(execute_job,buffer_job)
+        print('end query')
+        for (aflow_entry,b,status) in buffer:
+            if status == 'Valid':
+                print(aflow_entry,b['prototype'])
+                with open(b['prototype']+'.json', 'w') as f:
+                    f.write(json.dumps(b, indent=2))
+            else:
+                print(aflow_entry,' Problem ')
+        buffer = []
+        buffer_job = []
