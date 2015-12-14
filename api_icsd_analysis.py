@@ -40,7 +40,7 @@ def execute_job(args):
             entry =  json.load(f)
             data_entry = {}
             for key in keys:
-                print entry[key]
+                print(entry[key])
                 data_entry[key] = entry[key] 
             status = 'Valid'
     except ValueError:
@@ -52,15 +52,16 @@ if __name__ == '__main__':
 
     NPROCESS =32
     
-    ibravais = 4
+    ibravais = 1
     bravais_type = BRAVAIS[ibravais]
     print('Bravais system : ',ibravais,BRAVAIS[ibravais])
 
     compound_list = os.listdir(BRAVAIS[ibravais])
     
-    keys = ['density','Egap','Egap_fit']
+    keys = ['prototype','compound','aurl','density','valence_cell_std','Egap','Egap_fit','Egap_type']
 
     writer = csv.writer(open('bravais_'+bravais_type+'.csv', 'w'))
+    writer.writerow(keys)
 
     pool = multiprocessing.Pool(processes=NPROCESS)
 
