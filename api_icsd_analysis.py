@@ -52,60 +52,66 @@ if __name__ == '__main__':
 
     NPROCESS =32
     
-    ibravais = 1
-    bravais_type = BRAVAIS[ibravais]
-    print('Bravais system : ',ibravais,BRAVAIS[ibravais])
+#    ibravais = 1
+#    bravais_type = BRAVAIS[ibravais]
 
-    compound_list = os.listdir(BRAVAIS[ibravais])
-    
-    keys = ['prototype','compound','aurl','density','valence_cell_std','Egap','Egap_fit','Egap_type']
+    for bravais_type in BRAVAIS:
+        print('Bravais system : ',bravais_type)
 
-    writer = csv.writer(open('bravais_'+bravais_type+'.csv', 'w'))
-    writer.writerow(keys)
+        compound_list = os.listdir(bravais_type)
 
-    pool = multiprocessing.Pool(processes=NPROCESS)
+        keys = ['prototype','compound','natoms',\
+                'nspecies','spacegroup_relax',\
+                'density','valence_cell_std',\
+                'dft_type','Egap','Egap_fit','Egap_type',\
+                'spin_cell','scintillation_attenuation_length','aurl']
 
-    buffer = []
-    buffer_job = []
-    for c in compound_list:
-        compound_file = str(BRAVAIS[ibravais]+'/'+c)
-        buffer_job.append((compound_file,keys))
-        print(c,compound_file)
-        if len(buffer_job)==NPROCESS:
-            print('start processing')
-            buffer = pool.map(execute_job,buffer_job)
-#           pool.close()
-#           pool.join() # this makes the script wait here until all jobs are done
-            print('end processing')
-            for (aflow_entry,b,status) in buffer:
-                if status == 'Valid': 
-                   properties = []
-                   for key in keys:
-                       if key in b:
-                          properties.append(b[key])
-                       else:
-                          print(aflow_entry,' Problem: empty record ')
-                   writer.writerow(properties)
-                else:
-                   print(aflow_entry,' Problem ')
-            buffer = []
-            buffer_job = []
+        writer = csv.writer(open('bravais_'+bravais_type+'.csv', 'w'))
+        writer.writerow(keys)
 
-    if len(buffer_job)!=0:
-        print('start processing')
-        buffer = pool.map(execute_job,buffer_job)
-        print('end processing')
-        for (aflow_entry,b,status) in buffer:
-            if status == 'Valid':
-                properties = []
-                for key in keys:
-                    if key in b:
-                        properties.append(b[key])
-                    else:
-                        print(aflow_entry,' Problem: empty record ')
-                writer.writerow(properties)
-            else:
-                print(aflow_entry,' Problem ')
+        pool = multiprocessing.Pool(processes=NPROCESS)
+
         buffer = []
         buffer_job = []
+        for c in compound_list:
+            compound_file = str(bravais_type+'/'+c)
+            buffer_job.append((compound_file,keys))
+            print(c,compound_file)
+            if len(buffer_job)==NPROCESS:
+                print('start processing')
+                buffer = pool.map(execute_job,buffer_job)
+    #           pool.close()
+    #           pool.join() # this makes the script wait here until all jobs are done
+                print('end processing')
+                for (aflow_entry,b,status) in buffer:
+                    if status == 'Valid': 
+                       properties = []
+                       for key in keys:
+                           if key in b:
+                              properties.append(b[key])
+                           else:
+                              print(aflow_entry,' Problem: empty record ')
+                       writer.writerow(properties)
+                    else:
+                       print(aflow_entry,' Problem ')
+                buffer = []
+                buffer_job = []
+
+        if len(buffer_job)!=0:
+            print('start processing')
+            buffer = pool.map(execute_job,buffer_job)
+            print('end processing')
+            for (aflow_entry,b,status) in buffer:
+                if status == 'Valid':
+                    properties = []
+                    for key in keys:
+                        if key in b:
+                            properties.append(b[key])
+                        else:
+                            print(aflow_entry,' Problem: empty record ')
+                    writer.writerow(properties)
+                else:
+                    print(aflow_entry,' Problem ')
+            buffer = []
+            buffer_job = []
 
