@@ -71,12 +71,11 @@ if __name__ == '__main__':
         compound_file = str(BRAVAIS[ibravais]+'/'+c)
         buffer_job.append((compound_file,keys))
         print(c,compound_file)
-        #print buffer_job
         if len(buffer_job)==NPROCESS:
             print('start processing')
             buffer = pool.map(execute_job,buffer_job)
-#            pool.close()
-#            pool.join() # this makes the script wait here until all jobs are done
+#           pool.close()
+#           pool.join() # this makes the script wait here until all jobs are done
             print('end processing')
             for (aflow_entry,b,status) in buffer:
                 if status == 'Valid': 
@@ -84,7 +83,6 @@ if __name__ == '__main__':
                    for key in keys:
                        if key in b:
                           properties.append(b[key])
-
                        else:
                           print(aflow_entry,' Problem: empty record ')
                    writer.writerow(properties)
@@ -93,16 +91,21 @@ if __name__ == '__main__':
             buffer = []
             buffer_job = []
 
-#    if len(buffer_job)!=0:
-#        print('start query')
-#        buffer = pool.map(execute_job,buffer_job)
-#        print('end query')
-#        for (aflow_entry,b,status) in buffer:
-#            if status == 'Valid':
-#                print(aflow_entry,b['prototype'])
-#                with open(b['prototype']+'.json', 'w') as f:
-#                    f.write(json.dumps(b, indent=2))
-#            else:
-#                print(aflow_entry,' Problem ')
-#        buffer = []
-#        buffer_job = []
+    if len(buffer_job)!=0:
+        print('start processing')
+        buffer = pool.map(execute_job,buffer_job)
+        print('end processing')
+        for (aflow_entry,b,status) in buffer:
+            if status == 'Valid':
+                properties = []
+                for key in keys:
+                    if key in b:
+                        properties.append(b[key])
+                    else:
+                        print(aflow_entry,' Problem: empty record ')
+                writer.writerow(properties)
+            else:
+                print(aflow_entry,' Problem ')
+        buffer = []
+        buffer_job = []
+
