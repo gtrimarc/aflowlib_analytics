@@ -39,9 +39,12 @@ def execute_job(args):
         with open(aflow_entry, 'r') as f:
             entry =  json.load(f)
             data_entry = {}
-            for key in keys:
-                print(entry[key])
-                data_entry[key] = entry[key] 
+            for key in keys: 
+                if key in entry:
+                    print(entry[key])
+                    data_entry[key] = entry[key]
+                else:
+                    data_entry[key] = None
             status = 'Valid'
     except ValueError:
         data_entry=None
@@ -62,7 +65,7 @@ if __name__ == '__main__':
 
         keys = ['prototype','compound','natoms',\
                 'nspecies','spacegroup_relax',\
-                'geometry','positions_fractional',\
+                'geometry','positions_cartesian',\
                 'ldau_TLUJ','species_pp',\
                 'species_pp_version',\
                 'density','valence_cell_std',\
@@ -83,6 +86,7 @@ if __name__ == '__main__':
             if len(buffer_job)==NPROCESS:
                 print('start processing')
                 buffer = pool.map(execute_job,buffer_job)
+                #buffer = map(execute_job,buffer_job)
     #           pool.close()
     #           pool.join() # this makes the script wait here until all jobs are done
                 print('end processing')
