@@ -1,2 +1,2 @@
 # aflowlib_analytics
-Python scripts for scraping the AFLOWLIB database http://www.aflowlib.org/
+Python scripts to fetch data from the AFLOWLIB database http://www.aflowlib.org/
