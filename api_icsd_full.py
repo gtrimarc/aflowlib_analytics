@@ -3,6 +3,7 @@ import json # preamble
 import multiprocessing
 import re
 import os
+import time
 
 from collections import defaultdict
 from urllib.request import urlopen # preamble
@@ -40,6 +41,7 @@ def execute_job(aflow_entry):
     except ValueError:
         t=None
         status = ValueError
+    time.sleep(0.2)
     return (aflow_entry,t,status)
 
 if __name__ == '__main__':
@@ -74,6 +76,7 @@ if __name__ == '__main__':
         if len(buffer_job)==NPROCESS:
             print('start query')
             buffer = pool.map(execute_job,buffer_job)
+
 #            pool.close()
 #            pool.join() # this makes the script wait here until all jobs are done
             print('end query')
