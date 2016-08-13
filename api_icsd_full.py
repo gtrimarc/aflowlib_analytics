@@ -34,7 +34,8 @@ BRAVAIS = ['CUB','FCC','BCC','TET','BCT',\
 
 def execute_job(aflow_entry):
     try:
-        t=json.loads(urlopen(aflow_entry).readall().decode('utf-8')) 
+        url_req=urlopen(aflow_entry).read().decode('utf-8')
+        t=json.loads(url_req) 
         status = 'Valid'
     except ValueError:
         t=None
@@ -53,7 +54,8 @@ if __name__ == '__main__':
     os.chdir(BRAVAIS[ibravais])
     
     URL=SERVER+'/'+PROJECT+'/'+BRAVAIS[ibravais]
-    entry=json.loads(urlopen(URL+'?aflowlib_entries&format=json').readall().decode('utf-8')) # load
+    url_req=urlopen(URL+'?aflowlib_entries&format=json').read().decode('utf-8')
+    entry=json.loads(url_req) # load
 
 
     for key in entry:
