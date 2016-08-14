@@ -14,7 +14,7 @@ BRAVAIS = ['CUB','FCC','BCC','TET','BCT',
            'ORC','ORCF','ORCI','ORCC','HEX',
            'RHL','MCL','MCLC','TRI']
 
-ibravais = 0
+ibravais = 2
 
 URL=SERVER+'/'+PROJECT+'/'+BRAVAIS[ibravais]
 
@@ -28,7 +28,7 @@ def fetch_files(url_root, compound, root_folder, lfiles):
     for f in lfiles:
         print(compound, url_root+'/'+compound+'/'+f)
         urlretrieve(url_root+'/'+compound+'/'+f,f)
-        time.sleep(0.075)
+        time.sleep(0.2)
     os.chdir('../../')
     
     time.sleep(1.0)
@@ -37,7 +37,7 @@ def process_entry(info_entry):
     (URL, root_folder, compound) = info_entry
     urlentry = URL+'/'+compound+'/'+'?format=json'
     try:
-        aflow_entry=json.loads(urlopen(urlentry).readall().decode('utf-8'))
+        aflow_entry=json.loads(urlopen(urlentry).read().decode('utf-8'))
         lf = aflow_entry['files']
         lfiles = [l for l in lf if sum([l.find(s) for s in test_strings]) == -4]
         fetch_files(URL,compound, root_folder, lfiles)
@@ -48,11 +48,11 @@ def process_entry(info_entry):
 
 if __name__ == '__main__':
 
-    NPROCESS = 16
+    NPROCESS = 8
     pool = multiprocessing.Pool(processes=NPROCESS)
 
     url_entry_list = URL+'?aflowlib_entries&format=json'
-    entry_json = urlopen(url_entry_list).readall().decode('utf-8')
+    entry_json = urlopen(url_entry_list).read().decode('utf-8')
     entry=json.loads(entry_json)
     
     root_folder = 'full_file_stack'+'_'+BRAVAIS[ibravais]
