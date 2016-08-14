@@ -14,11 +14,11 @@ BRAVAIS = ['CUB','FCC','BCC','TET','BCT',
            'ORC','ORCF','ORCI','ORCC','HEX',
            'RHL','MCL','MCLC','TRI']
 
-ibravais = 10
+ibravais = 0
 
 URL=SERVER+'/'+PROJECT+'/'+BRAVAIS[ibravais]
 
-test_strings = ["*","AECCAR","jvxl"]
+test_strings = ["*","AECCAR","jvxl","png"]
 
 def fetch_files(url_root, compound, root_folder, lfiles):   
     folder = './'+root_folder+'/'+compound
@@ -28,6 +28,7 @@ def fetch_files(url_root, compound, root_folder, lfiles):
     for f in lfiles:
         print(compound, url_root+'/'+compound+'/'+f)
         urlretrieve(url_root+'/'+compound+'/'+f,f)
+        time.sleep(0.075)
     os.chdir('../../')
     
     time.sleep(1.0)
@@ -38,7 +39,7 @@ def process_entry(info_entry):
     try:
         aflow_entry=json.loads(urlopen(urlentry).readall().decode('utf-8'))
         lf = aflow_entry['files']
-        lfiles = [l for l in lf if sum([l.find(s) for s in test_strings]) == -3]
+        lfiles = [l for l in lf if sum([l.find(s) for s in test_strings]) == -4]
         fetch_files(URL,compound, root_folder, lfiles)
         status = 'Valid'
     except ValueError:
@@ -47,7 +48,7 @@ def process_entry(info_entry):
 
 if __name__ == '__main__':
 
-    NPROCESS = 384 
+    NPROCESS = 16
     pool = multiprocessing.Pool(processes=NPROCESS)
 
     url_entry_list = URL+'?aflowlib_entries&format=json'
